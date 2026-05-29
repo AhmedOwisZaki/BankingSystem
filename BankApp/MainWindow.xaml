@@ -108,8 +108,7 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="🏛️" FontSize="26" VerticalAlignment="Center" Margin="0,0,10,0" />
-                    <TextBlock Text="ANTIGRAVITY" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-                    <TextBlock Text="BANKING WORKSPACE" FontSize="14" Foreground="{StaticResource TextMuted}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBlock Text="ASI Banking System" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Statistics Bar -->
