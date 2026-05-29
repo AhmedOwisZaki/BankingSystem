@@ -73,13 +73,13 @@ namespace BankCore.Tests.Tests
             Setup();
             var service = new AccountService();
             var source = service.OpenAccount(_customerId, AccountType.Saving, 1000m);
-            var dest = service.OpenAccount(_customerId, AccountType.Salary, 500m);
+            var dest   = service.OpenAccount(_customerId, AccountType.Salary, 500m);
 
             service.Transfer(source.Id, dest.Id, 300m, "Pocket money");
 
-            var accounts = service.GetAccountsByCustomerId(_customerId);
+            var accounts    = service.GetAccountsByCustomerId(_customerId);
             var updatedSource = accounts.Find(a => a.Id == source.Id);
-            var updatedDest = accounts.Find(a => a.Id == dest.Id);
+            var updatedDest   = accounts.Find(a => a.Id == dest.Id);
 
             SimpleAssert.AreEqual(700m, updatedSource.Balance);
             SimpleAssert.AreEqual(800m, updatedDest.Balance);
@@ -93,11 +93,39 @@ namespace BankCore.Tests.Tests
 
             service.CloseAccount(account.Id);
 
-            var accounts = service.GetAccountsByCustomerId(_customerId);
+            var accounts      = service.GetAccountsByCustomerId(_customerId);
             var closedAccount = accounts.Find(a => a.Id == account.Id);
 
             SimpleAssert.IsTrue(closedAccount.IsClosed);
             SimpleAssert.AreEqual(0m, closedAccount.Balance);
+        }
+
+        public void TestOpenSalaryAccount_DuplicateActive_Throws()
+        {
+            // A customer must NOT have more than one ACTIVE salary account.
+            Setup();
+            var service = new AccountService();
+            service.OpenAccount(_customerId, AccountType.Salary, 5000m); // first salary account — OK
+
+            SimpleAssert.Throws<InvalidOperationException>(() =>
+            {
+                service.OpenAccount(_customerId, AccountType.Salary, 3000m); // second — must throw
+            });
+        }
+
+        public void TestOpenSalaryAccount_AfterClosed_Succeeds()
+        {
+            // Once the original salary account is CLOSED, the customer may open a new one.
+            Setup();
+            var service = new AccountService();
+            var first = service.OpenAccount(_customerId, AccountType.Salary, 5000m);
+            service.CloseAccount(first.Id); // close it
+
+            // Should now succeed — no active salary account remains
+            var second = service.OpenAccount(_customerId, AccountType.Salary, 3000m);
+            SimpleAssert.IsNotNull(second);
+            SimpleAssert.AreEqual(AccountType.Salary, second.Type);
+            SimpleAssert.IsFalse(second.IsClosed);
         }
     }
 }
