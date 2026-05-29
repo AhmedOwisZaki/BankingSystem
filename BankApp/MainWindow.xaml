@@ -1,0 +1,689 @@
+<Window x:Class="BankApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BankApp.Helpers"
+        xmlns:vm="clr-namespace:BankApp.ViewModels"
+        mc:Ignorable="d"
+        Title="Banking System Workspace" Height="820" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F6F9"
+        FontFamily="Segoe UI">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <!-- Custom Converters -->
+        <local:BooleanToTitleConverter x:Key="BooleanToTitleConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <!-- Modern Colors -->
+        <SolidColorBrush x:Key="PrimaryColor" Color="#4F46E5" />
+        <SolidColorBrush x:Key="PrimaryDarkColor" Color="#3730A3" />
+
+        <SolidColorBrush x:Key="SecondaryColor" Color="#0F172A" />
+        <SolidColorBrush x:Key="AccentGreen" Color="#10B981" />
+        <SolidColorBrush x:Key="AccentRed" Color="#EF4444" />
+        <SolidColorBrush x:Key="BgLight" Color="#F8FAFC" />
+        <SolidColorBrush x:Key="CardBg" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="TextDark" Color="#1E293B" />
+        <SolidColorBrush x:Key="TextMuted" Color="#64748B" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#E2E8F0" />
+
+        <!-- Control Styles -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#E2E8F0" />
+            <Setter Property="Foreground" Value="{StaticResource TextDark}" />
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{StaticResource AccentRed}" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Header -->
+            <RowDefinition Height="65" />
+            <!-- Main Content Area -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- HEADER BAR -->
+        <Border Grid.Row="0" Background="{StaticResource SecondaryColor}" Padding="20,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🏛️" FontSize="26" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <TextBlock Text="ANTIGRAVITY" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="BANKING WORKSPACE" FontSize="14" Foreground="{StaticResource TextMuted}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Statistics Bar -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#1E293B" CornerRadius="6" Padding="15,6" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Customers: " Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                            <TextBlock Text="{Binding BankStatistics.TotalCustomers}" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#1E293B" CornerRadius="6" Padding="15,6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Total Assets: " Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                            <TextBlock Text="{Binding BankStatistics.TotalAssets, StringFormat={}{0:N0} L.E.}" Foreground="{StaticResource AccentGreen}" FontWeight="Bold" FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN LAYOUT -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Customer Management Directory (Left) -->
+                <ColumnDefinition Width="340" />
+                <!-- Core Operations Workspace (Right) -->
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANEL: CUSTOMER DIRECTORY -->
+            <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Title -->
+                    <TextBlock Grid.Row="0" Text="Customer Directory" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
+
+                    <!-- Directory List -->
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}" Margin="0,0,0,15" BorderThickness="0" Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="ListBox_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="10,8" Margin="0,2">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextDark}" />
+                                            <TextBlock Text="{Binding NationalID, StringFormat=ID: {0}}" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Background="#EEF2F6" CornerRadius="4" Padding="5,2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Age, StringFormat={}{0} yrs}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource TextMuted}" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Profile Registration / Edit Form -->
+                    <Border Grid.Row="2" Background="{StaticResource BgLight}" CornerRadius="8" Padding="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="{Binding IsEditingCustomer, Converter={StaticResource BooleanToTitleConverter}}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
+                            
+                            <TextBlock Text="Full Name" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                            <TextBox Text="{Binding CustName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,5,0">
+                                    <TextBlock Text="Age" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding CustAge, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                    <TextBlock Text="Gender" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                    <ComboBox ItemsSource="{Binding GenderOptions}" SelectedItem="{Binding CustGender}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Address" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                            <TextBox Text="{Binding CustAddress, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+
+                            <TextBlock Text="National ID / Registration ID" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                            <TextBox Text="{Binding CustNationalId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Content="Save Customer Profile" Command="{Binding SaveCustomerCommand}" />
+                                <Button Grid.Column="1" Content="Cancel" Style="{StaticResource SecondaryButton}" Command="{Binding CancelEditCommand}" Margin="5,0,0,0" Visibility="{Binding IsEditingCustomer, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT PANEL: CORE OPERATIONS WORKSPACE -->
+            <Grid Grid.Column="1" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Customer Details Banner -->
+                <Border Grid.Row="0" Background="{StaticResource CardBg}" CornerRadius="8" Padding="15" Margin="0,0,0,15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding SelectedCustomer.Name, FallbackValue='No Customer Selected'}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextDark}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                <TextBlock Text="National ID: " Foreground="{StaticResource TextMuted}" FontSize="12" />
+                                <TextBlock Text="{Binding SelectedCustomer.NationalID, FallbackValue='N/A'}" Foreground="{StaticResource TextDark}" FontSize="12" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                <TextBlock Text="Age/Gender: " Foreground="{StaticResource TextMuted}" FontSize="12" />
+                                <TextBlock Text="{Binding SelectedCustomer.Age, StringFormat={}{0} yrs}" Foreground="{StaticResource TextDark}" FontSize="12" FontWeight="SemiBold"/>
+                                <TextBlock Text=" / " Foreground="{StaticResource TextMuted}" FontSize="12" />
+                                <TextBlock Text="{Binding SelectedCustomer.Gender}" Foreground="{StaticResource TextDark}" FontSize="12" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                <TextBlock Text="Net Worth: " Foreground="{StaticResource TextMuted}" FontSize="12" />
+                                <TextBlock Text="{Binding SelectedCustomerReport.NetWorth, StringFormat={}{0:N2} L.E., FallbackValue='0.00 L.E.'}" Foreground="{StaticResource PrimaryColor}" FontSize="12" FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Edit Details" Command="{Binding EditCustomerCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" />
+                            <Button Content="Delete Customer" Command="{Binding DeleteCustomerCommand}" Style="{StaticResource DangerButton}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- WORKSPACE TABS -->
+                <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
+                    <!-- TAB 1: ACCOUNTS & TRANSACTIONS -->
+                    <TabItem Header="🏦 Accounts &amp; Cash Desk">
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="380" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left: Manage Accounts -->
+                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <!-- Create Account -->
+                                <Border Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Open New Account" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,5,0">
+                                                <TextBlock Text="Account Type" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                                <ComboBox ItemsSource="{Binding AccountTypeOptions}" SelectedItem="{Binding NewAccountType}" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                                <TextBlock Text="Initial Deposit" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                                <TextBox Text="{Binding InitialDeposit, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <Button Content="Confirm New Account" Command="{Binding OpenAccountCommand}" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Perform Transactions -->
+                                <Border Background="White" CornerRadius="8" Padding="15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Perform Cash Transaction" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
+                                        
+                                        <TextBlock Text="Selected Account" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                        <ComboBox ItemsSource="{Binding SelectedCustomerReport.Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="Type" Margin="0,0,0,8" />
+                                        
+                                        <TextBlock Text="Amount (L.E.)" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                        <TextBox Text="{Binding TransactionAmount, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
+
+                                        <TextBlock Text="Description" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                        <TextBox Text="{Binding TransactionDescription, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Content="Deposit" Command="{Binding DepositCommand}" Background="{StaticResource AccentGreen}" Margin="0,0,4,0" />
+                                            <Button Grid.Column="1" Content="Withdraw" Command="{Binding WithdrawCommand}" Background="{StaticResource AccentRed}" Margin="4,0,4,0" />
+                                            <Button Grid.Column="2" Content="Close Account" Command="{Binding CloseAccountCommand}" Style="{StaticResource DangerButton}" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Right: Account Status & Transaction Log -->
+                            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Text="Account Ledger &amp; Balance" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
+                                    
+                                    <!-- Accounts List -->
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerReport.Accounts}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" Background="Transparent" RowHeaderWidth="0">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Account ID" Binding="{Binding Id}" Width="80" />
+                                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100" />
+                                            <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat={}{0:N2} L.E.}" Width="150" />
+                                            <DataGridTextColumn Header="Date Opened" Binding="{Binding OpenedAt, StringFormat={}{0:yyyy-MM-dd}}" Width="120" />
+                                            <DataGridTemplateColumn Header="Status" Width="100">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                                                            <Setter Property="Background" Value="#FEE2E2" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding IsClosed}" Value="False">
+                                                                            <Setter Property="Background" Value="#D1FAE5" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock FontSize="11" FontWeight="Bold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                                                                <Setter Property="Text" Value="CLOSED" />
+                                                                                <Setter Property="Foreground" Value="{StaticResource AccentRed}" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsClosed}" Value="False">
+                                                                                <Setter Property="Text" Value="ACTIVE" />
+                                                                                <Setter Property="Foreground" Value="{StaticResource AccentGreen}" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- TAB 2: SAVINGS CERTIFICATES -->
+                    <TabItem Header="📜 Savings Certificates">
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="380" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Purchase / Modify form -->
+                            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,15,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Purchase Certificate" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,12" />
+                                    
+                                    <TextBlock Text="Price (min 1000 L.E., Multiples of 1000)" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding CertPrice, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                                    <TextBlock Text="Period (Years)" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                    <ComboBox ItemsSource="{Binding CertificatePeriods}" SelectedItem="{Binding CertPeriod}" Margin="0,0,0,12" />
+
+                                    <Border Background="{StaticResource BgLight}" CornerRadius="6" Padding="12" Margin="0,0,0,15">
+                                        <StackPanel>
+                                            <TextBlock Text="Interest Breakdown:" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextDark}" Margin="0,0,0,5" />
+                                            <BulletDecorator Margin="0,2">
+                                                <BulletDecorator.Bullet>
+                                                    <Ellipse Width="4" Height="4" Fill="{StaticResource PrimaryColor}" Margin="0,0,5,0"/>
+                                                </BulletDecorator.Bullet>
+                                                <TextBlock Text="1 Year: 10% Interest Rate" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                            </BulletDecorator>
+                                            <BulletDecorator Margin="0,2">
+                                                <BulletDecorator.Bullet>
+                                                    <Ellipse Width="4" Height="4" Fill="{StaticResource PrimaryColor}" Margin="0,0,5,0"/>
+                                                </BulletDecorator.Bullet>
+                                                <TextBlock Text="3 Years: 15% Interest Rate" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                            </BulletDecorator>
+                                            <BulletDecorator Margin="0,2">
+                                                <BulletDecorator.Bullet>
+                                                    <Ellipse Width="4" Height="4" Fill="{StaticResource PrimaryColor}" Margin="0,0,5,0"/>
+                                                </BulletDecorator.Bullet>
+                                                <TextBlock Text="5 Years: 20% Interest Rate" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                            </BulletDecorator>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Buy New" Command="{Binding BuyCertificateCommand}" Margin="0,0,4,0" />
+                                        <Button Grid.Column="1" Content="Update Selected" Command="{Binding ModifyCertificateCommand}" Style="{StaticResource SecondaryButton}" Margin="4,0,0,0" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Certificates List -->
+                            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Owned Certificates" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" VerticalAlignment="Center" />
+                                        <Button Grid.Column="1" Content="Cancel/Sell Selected" Command="{Binding DeleteCertificateCommand}" Style="{StaticResource DangerButton}" />
+                                    </Grid>
+
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerReport.Certificates}" SelectedItem="{Binding SelectedCertificate}" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" Background="Transparent" RowHeaderWidth="0">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Cert ID" Binding="{Binding Id}" Width="80" />
+                                            <DataGridTextColumn Header="Face Value" Binding="{Binding Price, StringFormat={}{0:N0} L.E.}" Width="130" />
+                                            <DataGridTextColumn Header="Term" Binding="{Binding Period, StringFormat={}{0} Years}" Width="100" />
+                                            <DataGridTextColumn Header="Interest Rate" Binding="{Binding InterestRate, StringFormat={}{0:P0}}" Width="120" />
+                                            <DataGridTextColumn Header="Purchase Date" Binding="{Binding PurchaseDate, StringFormat={}{0:yyyy-MM-dd}}" Width="130" />
+                                            <DataGridTextColumn Header="Expiry Date" Binding="{Binding ExpiryDate, StringFormat={}{0:yyyy-MM-dd}}" Width="130" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- TAB 3: CREDIT CARDS -->
+                    <TabItem Header="💳 Credit Cards">
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="380" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Issue / Limit updates -->
+                            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,15,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Credit Card Account Services" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,12" />
+                                    
+                                    <TextBlock Text="Limit (50,000 L.E. up to 250,000 L.E.)" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding CreditCardLimit, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                                    <Grid Margin="0,0,0,15">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="Issue New Card" Command="{Binding IssueCreditCardCommand}" Margin="0,0,4,0" />
+                                        <Button Grid.Column="1" Content="Update Limit" Command="{Binding UpdateCreditCardLimitCommand}" Style="{StaticResource SecondaryButton}" Margin="4,0,0,0" />
+                                    </Grid>
+
+                                    <!-- Quick notes -->
+                                    <Border Background="#FFFBEB" CornerRadius="6" Padding="12" BorderBrush="#FCD34D" BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="⚠️ Important Policy Rules:" FontSize="12" FontWeight="SemiBold" Foreground="#92400E" Margin="0,0,0,5" />
+                                            <TextBlock Text="• Only ONE active card per customer allowed." FontSize="11" Foreground="#92400E" Margin="0,0,0,2"/>
+                                            <TextBlock Text="• Term period is automatically fixed at 10 years." FontSize="11" Foreground="#92400E" Margin="0,0,0,2"/>
+                                            <TextBlock Text="• Credit cards CANNOT be deleted once created." FontSize="11" Foreground="#92400E" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card status, Charges, and Repayments -->
+                            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Text="Active Credit Card Details" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,15" />
+                                    
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="280" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Card Details panel -->
+                                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                            <Border Background="{StaticResource BgLight}" CornerRadius="8" Padding="15">
+                                                <StackPanel>
+                                                    <TextBlock Text="💳 Platinum Visa" FontSize="16" FontWeight="Bold" Foreground="{StaticResource PrimaryDarkColor}" Margin="0,0,0,12" />
+                                                    
+                                                    <TextBlock Text="Credit Limit" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                                    <TextBlock Text="{Binding SelectedCustomerReport.CreditCard.CashLimit, StringFormat={}{0:N0} L.E., FallbackValue='No Card Active'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+
+                                                    <TextBlock Text="Current Balance (Debt)" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                                    <TextBlock Text="{Binding SelectedCustomerReport.CreditCard.CurrentDebt, StringFormat={}{0:N2} L.E., FallbackValue='N/A'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource AccentRed}" Margin="0,0,0,8" />
+
+                                                    <TextBlock Text="Available Funds" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                                    <TextBlock Text="{Binding SelectedCustomerReport.CreditCard.AvailableLimit, StringFormat={}{0:N2} L.E., FallbackValue='N/A'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource AccentGreen}" Margin="0,0,0,8" />
+
+                                                    <TextBlock Text="Expires Date" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                                    <TextBlock Text="{Binding SelectedCustomerReport.CreditCard.ExpiryDate, StringFormat={}{0:yyyy-MM-dd}, FallbackValue='N/A'}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextDark}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Charge/Repay Operations -->
+                                        <StackPanel Grid.Column="1">
+                                            <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                                                <StackPanel>
+                                                    <TextBlock Text="Charge Purchases / Cash Advances" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+                                                    <Grid Margin="0,0,0,8">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox Text="{Binding CreditCardChargeAmount, UpdateSourceTrigger=PropertyChanged}" Width="150" HorizontalAlignment="Left" />
+                                                        <Button Grid.Column="1" Content="Authorize Charge" Command="{Binding ChargeCreditCardCommand}" Background="{StaticResource AccentRed}" Width="130" />
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15">
+                                                <StackPanel>
+                                                    <TextBlock Text="Repay Credit Card Debt" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+                                                    <Grid Margin="0,0,0,8">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox Text="{Binding CreditCardRepayAmount, UpdateSourceTrigger=PropertyChanged}" Width="150" HorizontalAlignment="Left" />
+                                                        <Button Grid.Column="1" Content="Process Payment" Command="{Binding RepayCreditCardCommand}" Background="{StaticResource AccentGreen}" Width="130" />
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- TAB 4: AUDIT HISTORY -->
+                    <TabItem Header="🧾 Customer Account Report">
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="380" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Activities list (Left) -->
+                            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,15,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Services Activity Audit Log" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+                                    <ListBox Grid.Row="1" ItemsSource="{Binding SelectedCustomerReport.ServiceActivities}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,6">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{StaticResource TextDark}" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </Border>
+
+                            <!-- Account transactions list (Right) -->
+                            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Customer Cash Transactions Audit Log" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+                                    <ListBox Grid.Row="1" ItemsSource="{Binding SelectedCustomerReport.Transactions}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Description}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextDark}" />
+                                                            <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,0" />
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Amount, StringFormat={}{0:N2} L.E.}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Deposit">
+                                                                            <Setter Property="Foreground" Value="{StaticResource AccentGreen}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Withdrawal">
+                                                                            <Setter Property="Foreground" Value="{StaticResource AccentRed}" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- TAB 5: INTERNAL DIAGNOSTIC LOGS -->
+                    <TabItem Header="⚙️ Internal Audit Logs (TXT)">
+                        <Grid Margin="0,15,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="System Activity Diagnostic Trace" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" />
+                                    <TextBlock Text="Displays live trace of file entries captured from bank_log.txt for instant auditing &amp; bug tracing" FontSize="11" Foreground="{StaticResource TextMuted}" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Refresh Logs Now" Command="{Binding LoadLogsCommand}" Style="{StaticResource SecondaryButton}" />
+                            </Grid>
+
+                            <Border Grid.Row="1" Background="#0F172A" CornerRadius="8" Padding="15" BorderThickness="0">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <TextBox Text="{Binding LogContent, Mode=OneWay}" 
+                                             Background="Transparent" 
+                                             Foreground="#38BDF8" 
+                                             FontFamily="Consolas" 
+                                             FontSize="12" 
+                                             BorderThickness="0" 
+                                             IsReadOnly="True" 
+                                             AcceptsReturn="True" 
+                                             TextWrapping="Wrap" />
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
