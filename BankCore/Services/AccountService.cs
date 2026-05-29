@@ -35,6 +35,17 @@ namespace BankCore.Services
             if (initialBalance < 0)
                 throw new ArgumentException("Initial balance cannot be negative.");
 
+            // Enforce: only one active Salary account per customer
+            if (type == AccountType.Salary)
+            {
+                var existing = _accountRepo.GetByCustomerId(customerId);
+                bool hasActiveSalary = existing.Any(a => a.Type == AccountType.Salary && !a.IsClosed);
+                if (hasActiveSalary)
+                    throw new InvalidOperationException(
+                        "This customer already has an active Salary account. " +
+                        "Only one active Salary account is allowed per customer.");
+            }
+
             Account account;
             if (type == AccountType.Saving)
             {

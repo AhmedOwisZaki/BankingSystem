@@ -98,6 +98,7 @@ namespace BankApp.ViewModels
             LoadLogsCommand = new RelayCommand(ExecuteLoadLogs);
             NextPageCommand = new RelayCommand(ExecuteNextPage, () => _currentPage < TotalPages);
             PreviousPageCommand = new RelayCommand(ExecutePreviousPage, () => _currentPage > 1);
+            ClearFilterCommand = new RelayCommand(() => { FilterText = string.Empty; });
 
             // Load Initial Data
             LoadData();
@@ -319,6 +320,7 @@ namespace BankApp.ViewModels
         public ICommand LoadLogsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
+        public ICommand ClearFilterCommand { get; }
 
         #endregion
 
