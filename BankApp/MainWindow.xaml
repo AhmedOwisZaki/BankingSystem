@@ -356,7 +356,60 @@
                                         <TextBlock Text="Perform Cash Transaction" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
                                         
                                         <TextBlock Text="Selected Account" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
-                                        <ComboBox ItemsSource="{Binding SelectedCustomerReport.Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="Type" Margin="0,0,0,8" />
+                                        <ComboBox ItemsSource="{Binding SelectedCustomerReport.Accounts}" SelectedItem="{Binding SelectedAccount}" Margin="0,0,0,8">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Type + ID -->
+                                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock Text="{Binding Id, StringFormat=' · #{0}'}" Foreground="#64748B" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                        <!-- Balance -->
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding Balance, StringFormat='   {0:N0} L.E.'}"
+                                                                   Foreground="#4F46E5" FontWeight="Bold" FontSize="12"
+                                                                   VerticalAlignment="Center"/>
+                                                        <!-- Status badge -->
+                                                        <Border Grid.Column="2" CornerRadius="4" Padding="5,1" VerticalAlignment="Center" Margin="6,0,0,0">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                                                            <Setter Property="Background" Value="#FEE2E2"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding IsClosed}" Value="False">
+                                                                            <Setter Property="Background" Value="#D1FAE5"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock FontSize="10" FontWeight="Bold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                                                                <Setter Property="Text" Value="CLOSED"/>
+                                                                                <Setter Property="Foreground" Value="#EF4444"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsClosed}" Value="False">
+                                                                                <Setter Property="Text" Value="ACTIVE"/>
+                                                                                <Setter Property="Foreground" Value="#10B981"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         
                                         <TextBlock Text="Amount (L.E.)" FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,0,0,3" />
                                         <TextBox Text="{Binding TransactionAmount, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" />
