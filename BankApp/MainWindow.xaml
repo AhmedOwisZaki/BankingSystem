@@ -149,10 +149,39 @@
                     </Grid.RowDefinitions>
 
                     <!-- Title -->
-                    <TextBlock Grid.Row="0" Text="Customer Directory" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,10" />
-
+                    <TextBlock Grid.Row="0" Text="Customer Directory" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextDark}" Margin="0,0,0,8" />
+                    <!-- Search / Filter Box -->
+                    <Border Grid.Row="0" Background="{StaticResource BgLight}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="0,4" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="8,0,4,0" Foreground="{StaticResource TextMuted}"/>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0" Background="Transparent"
+                                     Padding="2,4" FontSize="13"
+                                     VerticalAlignment="Center"
+                                     x:Name="CustomerSearchBox">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border Background="Transparent" BorderThickness="0">
+                                                        <ScrollViewer x:Name="PART_ContentHost"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Grid>
+                    </Border>
                     <!-- Directory List -->
-                    <ListBox Grid.Row="1" ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}" Margin="0,0,0,15" BorderThickness="0" Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="ListBox_SelectionChanged">
+                    <ListBox Grid.Row="1" ItemsSource="{Binding PagedCustomers}" SelectedItem="{Binding SelectedCustomer}" Margin="0,0,0,8" BorderThickness="0" Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="ListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="10,8" Margin="0,2">

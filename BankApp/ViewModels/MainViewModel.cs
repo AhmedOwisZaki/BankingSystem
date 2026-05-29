@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -22,9 +23,16 @@ namespace BankApp.ViewModels
 
         // Observable collections
         public ObservableCollection<Customer> Customers { get; } = new ObservableCollection<Customer>();
+        public ObservableCollection<Customer> PagedCustomers { get; } = new ObservableCollection<Customer>();
         public ObservableCollection<string> GenderOptions { get; } = new ObservableCollection<string> { "Male", "Female", "Other" };
         public ObservableCollection<int> CertificatePeriods { get; } = new ObservableCollection<int> { 1, 3, 5 };
         public ObservableCollection<string> AccountTypeOptions { get; } = new ObservableCollection<string> { "Saving", "Salary" };
+
+        // Filtering & Pagination
+        private string _filterText = string.Empty;
+        private int _currentPage = 1;
+        private const int PageSize = 8;
+        private List<Customer> _filteredCustomers = new List<Customer>();
 
         // State variables
         private Customer _selectedCustomer;
@@ -88,12 +96,47 @@ namespace BankApp.ViewModels
 
             RefreshStatsCommand = new RelayCommand(ExecuteRefreshStats);
             LoadLogsCommand = new RelayCommand(ExecuteLoadLogs);
+            NextPageCommand = new RelayCommand(ExecuteNextPage, () => _currentPage < TotalPages);
+            PreviousPageCommand = new RelayCommand(ExecutePreviousPage, () => _currentPage > 1);
 
             // Load Initial Data
             LoadData();
         }
 
         #region Properties
+
+        // ── Filter & Pagination ──────────────────────────────────────────────────
+        public string FilterText
+        {
+            get => _filterText;
+            set
+            {
+                if (SetProperty(ref _filterText, value))
+                {
+                    _currentPage = 1;
+                    RebuildPagedView();
+                }
+            }
+        }
+
+        public int CurrentPage
+        {
+            get => _currentPage;
+            private set
+            {
+                if (SetProperty(ref _currentPage, value))
+                {
+                    OnPropertyChanged(nameof(PageInfo));
+                    CommandManager.InvalidateRequerySuggested();
+                }
+            }
+        }
+
+        public int TotalPages => _filteredCustomers.Count == 0 ? 1
+            : (int)Math.Ceiling(_filteredCustomers.Count / (double)PageSize);
+
+        public string PageInfo => $"Page {CurrentPage} of {TotalPages}  ({_filteredCustomers.Count} customers)";
+        // ────────────────────────────────────────────────────────────────────────
 
         public Customer SelectedCustomer
         {
@@ -274,6 +317,8 @@ namespace BankApp.ViewModels
 
         public ICommand RefreshStatsCommand { get; }
         public ICommand LoadLogsCommand { get; }
+        public ICommand NextPageCommand { get; }
+        public ICommand PreviousPageCommand { get; }
 
         #endregion
 
@@ -286,10 +331,9 @@ namespace BankApp.ViewModels
                 Customers.Clear();
                 var list = _customerService.GetAllCustomers();
                 foreach (var customer in list)
-                {
                     Customers.Add(customer);
-                }
 
+                RebuildPagedView();
                 ExecuteRefreshStats();
                 ExecuteLoadLogs();
             }
@@ -297,6 +341,52 @@ namespace BankApp.ViewModels
             {
                 MessageBox.Show($"Error loading data: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Applies the current FilterText to Customers, then slices the result
+        /// for the current page and populates PagedCustomers.
+        /// </summary>
+        private void RebuildPagedView()
+        {
+            string search = (_filterText ?? string.Empty).Trim().ToLowerInvariant();
+
+            _filteredCustomers = string.IsNullOrEmpty(search)
+                ? Customers.ToList()
+                : Customers.Where(c =>
+                    c.Name.ToLowerInvariant().Contains(search) ||
+                    c.NationalID.ToLowerInvariant().Contains(search) ||
+                    c.Address.ToLowerInvariant().Contains(search))
+                  .ToList();
+
+            // Clamp page within valid range
+            if (_currentPage > TotalPages) _currentPage = TotalPages;
+            if (_currentPage < 1) _currentPage = 1;
+
+            var page = _filteredCustomers
+                .Skip((_currentPage - 1) * PageSize)
+                .Take(PageSize)
+                .ToList();
+
+            PagedCustomers.Clear();
+            foreach (var c in page)
+                PagedCustomers.Add(c);
+
+            OnPropertyChanged(nameof(TotalPages));
+            OnPropertyChanged(nameof(PageInfo));
+            CurrentPage = _currentPage; // triggers page-button re-evaluation
+        }
+
+        private void ExecuteNextPage()
+        {
+            _currentPage++;
+            RebuildPagedView();
+        }
+
+        private void ExecutePreviousPage()
+        {
+            _currentPage--;
+            RebuildPagedView();
         }
 
         private void OnCustomerSelected()
